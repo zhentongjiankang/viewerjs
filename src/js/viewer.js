@@ -260,6 +260,16 @@ class Viewer {
           addClass(item, getResponsiveClass(show));
         }
 
+        if (name === 'make-visible') {
+          // icon present status, not action type
+          item.innerHTML = '<i class="fa fa-eye-slash"></i>';
+        }
+
+        if (name === 'make-invisible') {
+          // icon present status, not action type
+          item.innerHTML = '<i class="fa fa-eye"></i>';
+        }
+
         if (['small', 'large'].indexOf(size) !== -1) {
           addClass(item, `${NAMESPACE}-${size}`);
         } else if (name === 'play') {

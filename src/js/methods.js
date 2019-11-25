@@ -1004,4 +1004,32 @@ export default {
     element[NAMESPACE] = undefined;
     return this;
   },
+
+  makeVisible() {
+    var image = this.images[this.index];
+
+    $.post(image.dataset.toggleVisibleUrl, {}).then(function(res) {
+      $('.viewer-make-visible').hide();
+      $('.viewer-make-invisible').show();
+      image.dataset.customerVisible = 'true';
+
+      $(image).trigger('resetIcon');
+    });
+
+    return this;
+  },
+
+  makeInvisible() {
+    var image = this.images[this.index];
+
+    $.post(image.dataset.toggleVisibleUrl, {}).then(function(res) {
+      $('.viewer-make-visible').show();
+      $('.viewer-make-invisible').hide();
+      image.dataset.customerVisible = 'false';
+
+      $(image).trigger('resetIcon');
+    });
+
+    return this;
+  }
 };

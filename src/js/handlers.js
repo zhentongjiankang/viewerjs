@@ -34,7 +34,13 @@ export default {
   click(event) {
     const { target } = event;
     const { options, imageData } = this;
-    const action = getData(target, DATA_ACTION);
+
+    let action = null;
+    if (target.tagName === 'I') {
+      action = getData(target.parentElement, DATA_ACTION);
+    } else {
+      action = getData(target, DATA_ACTION);
+    }
 
     // Cancel the emulated click when the native click event was triggered.
     if (IS_TOUCH_DEVICE && event.isTrusted && target === this.canvas) {
@@ -107,6 +113,14 @@ export default {
 
       case 'flip-vertical':
         this.scaleY(-imageData.scaleY || -1);
+        break;
+
+      case 'make-visible':
+        this.makeVisible();
+        break;
+
+      case 'make-invisible':
+        this.makeInvisible();
         break;
 
       default:
