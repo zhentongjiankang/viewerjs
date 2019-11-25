@@ -5,7 +5,7 @@
  * Copyright 2015-present Chen Fengyuan
  * Released under the MIT license
  *
- * Date: 2019-11-23T05:10:26.193Z
+ * Date: 2019-11-29T09:30:26.653Z
  */
 
 'use strict';
@@ -369,7 +369,7 @@ var DATA_ACTION = "".concat(NAMESPACE, "Action"); // RegExps
 
 var REGEXP_SPACES = /\s\s*/; // Misc
 
-var BUTTONS = ['zoom-in', 'zoom-out', 'one-to-one', 'reset', 'prev', 'play', 'next', 'rotate-left', 'rotate-right', 'flip-horizontal', 'flip-vertical'];
+var BUTTONS = ['zoom-in', 'zoom-out', 'one-to-one', 'reset', 'prev', 'play', 'next', 'rotate-left', 'rotate-right', 'flip-horizontal', 'flip-vertical', 'make-visible', 'make-invisible'];
 
 /**
  * Check if the given value is a string.
@@ -1273,7 +1273,14 @@ var handlers = {
     var target = event.target;
     var options = this.options,
         imageData = this.imageData;
-    var action = getData(target, DATA_ACTION); // Cancel the emulated click when the native click event was triggered.
+    var action = null;
+
+    if (target.tagName === 'I') {
+      action = getData(target.parentElement, DATA_ACTION);
+    } else {
+      action = getData(target, DATA_ACTION);
+    } // Cancel the emulated click when the native click event was triggered.
+
 
     if (IS_TOUCH_DEVICE && event.isTrusted && target === this.canvas) {
       clearTimeout(this.clickCanvasTimeout);
@@ -1345,6 +1352,14 @@ var handlers = {
 
       case 'flip-vertical':
         this.scaleY(-imageData.scaleY || -1);
+        break;
+
+      case 'make-visible':
+        this.makeVisible();
+        break;
+
+      case 'make-invisible':
+        this.makeInvisible();
         break;
 
       default:
@@ -2639,6 +2654,26 @@ var methods = {
 
     element[NAMESPACE] = undefined;
     return this;
+  },
+  makeVisible: function makeVisible() {
+    var image = this.images[this.index];
+    $.post(image.dataset.toggleVisibleUrl, {}).then(function (res) {
+      $('.viewer-make-visible').hide();
+      $('.viewer-make-invisible').show();
+      image.dataset.customerVisible = 'true';
+      $(image).trigger('resetIcon');
+    });
+    return this;
+  },
+  makeInvisible: function makeInvisible() {
+    var image = this.images[this.index];
+    $.post(image.dataset.toggleVisibleUrl, {}).then(function (res) {
+      $('.viewer-make-visible').show();
+      $('.viewer-make-invisible').hide();
+      image.dataset.customerVisible = 'false';
+      $(image).trigger('resetIcon');
+    });
+    return this;
   }
 };
 
@@ -2996,6 +3031,16 @@ function () {
 
           if (isNumber(show)) {
             addClass(item, getResponsiveClass(show));
+          }
+
+          if (name === 'make-visible') {
+            // icon present status, not action type
+            item.innerHTML = '<i class="fa fa-eye-slash"></i>';
+          }
+
+          if (name === 'make-invisible') {
+            // icon present status, not action type
+            item.innerHTML = '<i class="fa fa-eye"></i>';
           }
 
           if (['small', 'large'].indexOf(size) !== -1) {
